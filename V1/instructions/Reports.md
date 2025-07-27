@@ -3,88 +3,299 @@
 
 ---
 
-## 🎯 Section 1: Current Phase Status & Implementation Roadmap
+## 🎯 Section 1: Current Project Status & Phase Analysis
+
+### **Project Overview**
+PolyRun is a mixed-language code execution engine that allows developers to write code in multiple programming languages within a single `.mix` file and execute it seamlessly. The project is currently in **Phase 1** with a functional CLI MVP.
+
+---
 
 ### ✅ **Phase 1: CLI MVP – Parser + Mixed Runner** 
-**Status: 85% Complete** ✓
+**Status: 75% Complete** ⚠️
 
-#### ✅ **What's Done:**
-- ✓ Basic project structure created
-- ✓ Parser module (`parser.py`) - parses `#lang:` blocks
-- ✓ Python runner (`runners/python_runner.py`) - executes Python code
-- ✓ C++ runner (`runners/cpp_runner.py`) - compiles and runs C++ code
-- ✓ Main orchestrator (`main.py`) - coordinates execution
-- ✓ Basic logging to output files
-- ✓ Sample `.mix` file with working examples
+#### ✅ **What's Implemented:**
+- ✓ Basic project structure created (`main.py`, `parser.py`, `runners/`)
+- ✓ Parser module correctly handles `#lang:` blocks without `#end` tags
+- ✓ Python runner (`python_runner.py`) with timeout protection
+- ✓ C++ runner (`cpp_runner.py`) with compilation and execution
+- ✓ Main orchestrator coordinates execution flow
+- ✓ Basic logging to timestamped output files
+- ✓ Sample `.mix` file demonstrates functionality
 
-#### ❌ **What's Missing:**
-- ❌ Configuration file support (config.json)
-- ❌ Input validation for `.mix` file format
-- ❌ Enhanced error reporting with line numbers
-- ❌ Structured logging system
-- ❌ Command-line argument parsing
-- ❌ Exit code handling for main process
+#### ❌ **Critical Missing Features from Phase 1:**
+- ❌ **Configuration file integration** - `config.json` exists but is not used
+- ❌ **Command-line argument parsing** - Input file is hardcoded
+- ❌ **Input validation** - No `.mix` file format validation
+- ❌ **Enhanced error reporting** - No line numbers or context
+- ❌ **Structured logging system** - Using basic print/file writes
+- ❌ **Dynamic language runner loading** - Hardcoded if/elif structure
 
-#### 🛠️ **How to Complete:**
-1. **Create config.json** - Add default settings for timeouts, languages, paths
-2. **Add argparse** - Let users specify input file via command line
-3. **Enhance parser** - Add validation and better error messages
-4. **Improve logging** - Replace simple file writes with proper logging module
-5. **Add CLI help** - Usage instructions and examples
+#### 🔧 **Technical Debt:**
+- Hardcoded file path in `main.py`
+- No error handling for missing files or invalid format
+- Runners have inconsistent function names and interfaces
+- No validation against supported languages list
+- Configuration timeouts ignored (hardcoded 5 seconds)
 
 ---
 
 ### ❌ **Phase 1.5: Testing & Validation**
 **Status: 0% Complete** ❌
 
-#### ❌ **What's Missing:**
-- ❌ Unit tests for parser module
-- ❌ Integration tests for language runners  
-- ❌ Test suite for error handling scenarios
-- ❌ Validation tests for `.mix` file format
-- ❌ Performance benchmarking setup
-
-#### 🛠️ **How to Complete:**
-1. **Create tests/ directory**
-2. **Write parser tests** - Test various `.mix` file formats
-3. **Write runner tests** - Test code execution and error handling
-4. **Add pytest configuration** - Automated test running
-5. **Create test data** - Sample `.mix` files for testing
+#### ❌ **Missing Components:**
+- No test directory or test files
+- No unit tests for parser logic
+- No integration tests for runners
+- No validation tests for `.mix` file format
+- No error handling scenario tests
+- No performance benchmarking
 
 ---
 
 ### ❌ **Phase 2: Output Handling + Error Support**
-**Status: 30% Complete** ⚠️
+**Status: 20% Complete** ❌
 
-#### ✅ **What's Done:**
-- ✓ Basic stdout/stderr capture
-- ✓ Simple error printing
+#### ✅ **Partial Implementation:**
+- ✓ Basic stdout/stderr capture in runners
+- ✓ Simple error display with ⚠️ prefix
 - ✓ Log file creation with timestamps
 
-#### ❌ **What's Missing:**
-- ❌ Structured logging with different levels
-- ❌ Execution time tracking
+#### ❌ **Missing Features:**
+- ❌ Structured logging with different levels (INFO, DEBUG, ERROR)
+- ❌ Execution time tracking per code block
 - ❌ Memory usage monitoring
 - ❌ Enhanced error messages with suggestions
-- ❌ Better output formatting
-
-#### 🛠️ **How to Complete:**
-1. **Replace print() with logging module**
-2. **Add time.time() tracking** - Measure execution duration
-3. **Add psutil** - Monitor memory usage
-4. **Create error suggestion system** - Common fixes for errors
-5. **Format output** - Colors, tables, progress bars
+- ❌ Better output formatting (colors, tables)
+- ❌ Return code handling in main process
 
 ---
 
-### ❌ **Phases 2.5 through 8**
+### ❌ **Phases 3-8: Advanced Features**
 **Status: 0% Complete** ❌
 
-All subsequent phases are not yet started and will build upon the foundation.
+All advanced phases (Security, Multi-language, Web Interface, etc.) are not started and depend on completing Phase 1 foundations.
 
 ---
 
-## 🔍 Section 2: Current Code Analysis - Line by Line Explanation
+## 🛠️ Section 2: Implementation Walkthrough - How to Complete Missing Features
+
+### **Priority 1: Complete Phase 1 Core Features**
+
+#### **1. Configuration Integration**
+**Current Issue:** `config.json` is loaded but never used.
+
+**Implementation Steps:**
+1. **Modify main.py to use config:**
+```python
+def main():
+    config = load_config()  # Already exists but unused
+    
+    # Use config values instead of hardcoded ones
+    input_file = config.get('input_file', 'samples/hello_world.mix')
+    timeout = config.get('timeout_seconds', 10)
+    supported_langs = config.get('supported_languages', ['python', 'cpp'])
+```
+
+2. **Update runners to accept config:**
+```python
+# In python_runner.py - change function signature
+def run_python_code(code, config):
+    timeout = config.get('timeout_seconds', 5)
+    # Use timeout instead of hardcoded 5
+```
+
+3. **Add validation against supported languages:**
+```python
+# In main.py loop
+if lang not in config.get('supported_languages', []):
+    result = {"success": False, "error": f"Language {lang} not supported"}
+```
+
+#### **2. Command-Line Arguments**
+**Current Issue:** Input file is hardcoded as `"samples/hello_world.mix"`.
+
+**Implementation Steps:**
+1. **Add argparse to main.py:**
+```python
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description='Execute mixed-language .mix files')
+    parser.add_argument('input_file', help='Path to .mix file to execute')
+    parser.add_argument('-c', '--config', default='config.json', help='Config file path')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Verbose output')
+    
+    args = parser.parse_args()
+    config = load_config(args.config)
+    blocks = parse_mix_file(args.input_file)
+```
+
+2. **Add file validation:**
+```python
+import os
+if not os.path.exists(args.input_file):
+    print(f"Error: File {args.input_file} not found")
+    sys.exit(1)
+```
+
+#### **3. Dynamic Language Runner System**
+**Current Issue:** Adding new languages requires modifying `main.py`.
+
+**Implementation Steps:**
+1. **Standardize runner interface:**
+```python
+# All runners should have the same function name
+def run_code(code, config):
+    # Standard return format
+    return {
+        "success": bool,
+        "output": str,
+        "error": str,
+        "execution_time": float,
+        "memory_used": int
+    }
+```
+
+2. **Dynamic import system:**
+```python
+import importlib
+
+def get_runner(language):
+    try:
+        runner_module = importlib.import_module(f"runners.{language}_runner")
+        return runner_module.run_code
+    except ImportError:
+        return None
+
+# In main loop:
+runner = get_runner(lang)
+if runner:
+    result = runner(code, config)
+else:
+    result = {"success": False, "error": f"No runner for {lang}"}
+```
+
+#### **4. Enhanced Error Reporting**
+**Current Issue:** No line numbers or context in errors.
+
+**Implementation Steps:**
+1. **Modify parser to track line numbers:**
+```python
+def parse_mix_file(file_path):
+    # ... existing code ...
+    for line_num, line in enumerate(lines, 1):
+        if line_stripped.startswith("#lang:"):
+            current_block = {
+                "language": language,
+                "code": [],
+                "start_line": line_num
+            }
+```
+
+2. **Add validation in parser:**
+```python
+def validate_mix_file(blocks):
+    errors = []
+    for i, block in enumerate(blocks):
+        if not block["language"]:
+            errors.append(f"Block {i+1}: Missing language specification")
+        if not block["code"].strip():
+            errors.append(f"Block {i+1}: Empty code block")
+    return errors
+```
+
+#### **5. Structured Logging System**
+**Current Issue:** Using print statements and basic file writes.
+
+**Implementation Steps:**
+1. **Replace prints with logging:**
+```python
+import logging
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(f'output/run_{timestamp}.log'),
+        logging.StreamHandler()
+    ]
+)
+
+# Replace print statements
+logging.info(f"Running block {i+1} [{lang}]")
+logging.error(f"Error in {lang}: {result['error']}")
+```
+
+### **Priority 2: Add Essential Testing (Phase 1.5)**
+
+#### **1. Create Test Structure:**
+```bash
+mkdir tests
+touch tests/__init__.py
+touch tests/test_parser.py
+touch tests/test_runners.py
+touch tests/test_integration.py
+```
+
+#### **2. Parser Tests:**
+```python
+# tests/test_parser.py
+import unittest
+from parser import parse_mix_file
+
+class TestParser(unittest.TestCase):
+    def test_simple_mix_file(self):
+        # Test with known input
+        blocks = parse_mix_file("test_samples/simple.mix")
+        self.assertEqual(len(blocks), 2)
+        self.assertEqual(blocks[0]["language"], "python")
+```
+
+#### **3. Runner Tests:**
+```python
+# tests/test_runners.py
+def test_python_runner_success():
+    result = run_python_code('print("hello")', config)
+    assert result["success"] == True
+    assert "hello" in result["output"]
+```
+
+### **Priority 3: Performance & Monitoring**
+
+#### **1. Add Execution Timing:**
+```python
+import time
+
+start_time = time.time()
+result = runner(code, config)
+execution_time = time.time() - start_time
+result["execution_time"] = execution_time
+```
+
+#### **2. Memory Monitoring:**
+```python
+import psutil
+import os
+
+def monitor_process_memory(pid):
+    try:
+        process = psutil.Process(pid)
+        return process.memory_info().rss
+    except:
+        return 0
+```
+
+---
+
+## 🎯 **Next Steps Priority Order:**
+
+1. **Week 1:** Complete Phase 1 missing features (config, CLI args, dynamic runners)
+2. **Week 2:** Add comprehensive testing suite (Phase 1.5)
+3. **Week 3:** Enhance error handling and monitoring (Phase 2)
+4. **Week 4:** Begin security features (Phase 3)
+
+This foundation must be solid before advancing to web interfaces or advanced compiler features. Focus on making the CLI robust and extensible first!
 
 ### 📁 **File: `parser.py`** - The Heart of `.mix` File Processing
 

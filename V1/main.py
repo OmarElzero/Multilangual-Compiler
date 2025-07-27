@@ -2,6 +2,13 @@ from parser import parse_mix_file
 from runners.python_runner import run_python_code
 from runners.cpp_runner import run_cpp_code
 from datetime import datetime
+import json
+
+
+def load_config(path='config.json'):
+    with open(path, 'r') as f:
+        return json.load(f)
+
 
 def main():
     blocks = parse_mix_file("samples/hello_world.mix")

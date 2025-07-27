@@ -6,8 +6,6 @@ int main() {
     cout << "Hello from C++\\n";
     return 0;
 }
-#end
 
 #lang:python
 print("Hello from Python!")
-#end
