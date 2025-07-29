@@ -9,3 +9,12 @@ int main() {
 
 #lang:python
 print("Hello from Python!")
+
+#lang:cpp
+#include <iostream>
+using namespace std;
+
+int main() {
+    cout << "Hello again from C++\\n";
+    return 0;
+}

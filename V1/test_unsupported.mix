@@ -1,0 +1,2 @@
+#lang:javascript
+console.log("test");
