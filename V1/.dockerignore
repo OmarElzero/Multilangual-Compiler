@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.env
+.venv/
+venv/
+ENV/
+.DS_Store
+.git/
+.pytest_cache/
+output/*.log
+database/polyrun.db

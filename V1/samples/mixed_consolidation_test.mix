@@ -1,0 +1,40 @@
+#lang: cpp
+#include <iostream>
+
+int main() {
+    std::cout << "Single block - should work normally" << std::endl;
+    return 0;
+}
+
+#lang: python
+print("Python block - should not be consolidated")
+
+#lang: cpp
+#include <iostream>
+#include <vector>
+
+int main() {
+    std::cout << "Second C++ block with vector" << std::endl;
+    std::vector<int> data = {10, 20, 30};
+    for (int x : data) {
+        std::cout << x << " ";
+    }
+    std::cout << std::endl;
+    return 0;
+}
+
+#lang: python
+print("Another Python block")
+import math
+print(f"Pi = {math.pi}")
+
+#lang: cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "Third C++ block with string" << std::endl;
+    std::string message = "Hello consolidation!";
+    std::cout << message << std::endl;
+    return 0;
+}

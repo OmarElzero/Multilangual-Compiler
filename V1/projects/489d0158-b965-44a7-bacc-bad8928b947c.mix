@@ -1,0 +1,8 @@
+#lang: python
+#export: message
+message = "Hello from Python!"
+print(message)
+
+#lang: javascript
+#import: message
+console.log("JS received:", message);

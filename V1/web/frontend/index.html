@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PolyRun - Multi-Language Code Executor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2d2d30;
+            padding: 1rem;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #569cd6;
+            font-size: 1.5rem;
+        }
+
+        .header .controls {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .status.online {
+            background: #0e7400;
+            color: white;
+        }
+
+        .status.offline {
+            background: #a1260d;
+            color: white;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3e3e42;
+        }
+
+        .editor-toolbar {
+            background: #2d2d30;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            background: #0e7400;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: #106e00;
+        }
+
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .btn.secondary {
+            background: #0078d4;
+        }
+
+        .btn.secondary:hover {
+            background: #106ebe;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .editor {
+            flex: 1;
+            background: #1e1e1e;
+            border: none;
+            color: #d4d4d4;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            padding: 1rem;
+            resize: none;
+            outline: none;
+        }
+
+        .output-panel {
+            width: 40%;
+            display: flex;
+            flex-direction: column;
+            background: #252526;
+        }
+
+        .output-toolbar {
+            background: #2d2d30;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .execution-result {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+
+        .execution-result.success {
+            background: #0e3a0e;
+            border-color: #0e7400;
+        }
+
+        .execution-result.error {
+            background: #3a0e0e;
+            border-color: #a1260d;
+        }
+
+        .execution-result.info {
+            background: #0e1f3a;
+            border-color: #0078d4;
+        }
+
+        .block-result {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            background: #2d2d30;
+            border-radius: 4px;
+        }
+
+        .block-header {
+            font-weight: bold;
+            color: #569cd6;
+            margin-bottom: 0.5rem;
+        }
+
+        .output-text {
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .progress {
+            width: 100%;
+            height: 4px;
+            background: #3e3e42;
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #0078d4;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .languages-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .language-tag {
+            display: inline-block;
+            background: #0078d4;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            margin: 0.1rem;
+            font-size: 0.8rem;
+        }
+
+        .split-handle {
+            width: 4px;
+            background: #3e3e42;
+            cursor: col-resize;
+        }
+
+        .split-handle:hover {
+            background: #0078d4;
+        }
+
+        .example-selector {
+            select {
+                background: #2d2d30;
+                color: #d4d4d4;
+                border: 1px solid #3e3e42;
+                padding: 0.3rem;
+                border-radius: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🔄 PolyRun</h1>
+        <div class="controls">
+            <div id="status" class="status offline">Connecting...</div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="editor-panel">
+            <div class="editor-toolbar">
+                <button id="runBtn" class="btn" disabled>▶️ Run Code</button>
+                <button id="clearBtn" class="btn secondary">🗑️ Clear</button>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="consolidateCheckbox" checked>
+                    <label for="consolidateCheckbox">Consolidate blocks</label>
+                </div>
+                
+                <div class="example-selector">
+                    <select id="exampleSelect">
+                        <option value="">Load Example...</option>
+                        <option value="hello">Hello World</option>
+                        <option value="data-passing">Data Passing</option>
+                        <option value="mixed">Mixed Languages</option>
+                        <option value="cpp-headers">C++ Headers</option>
+                    </select>
+                </div>
+            </div>
+            <textarea id="editor" class="editor" placeholder="Write your multi-language code here...
+
+Example:
+#lang: python
+print('Hello from Python!')
+x = 42
+
+#lang: javascript  
+console.log('Hello from JavaScript!');
+console.log('Answer:', 42);
+
+#lang: cpp
+#include <iostream>
+int main() {
+    std::cout << 'Hello from C++!' << std::endl;
+    return 0;
+}"></textarea>
+        </div>
+
+        <div class="split-handle" id="splitHandle"></div>
+
+        <div class="output-panel">
+            <div class="output-toolbar">
+                <span>📤 Output</span>
+                <button id="clearOutputBtn" class="btn secondary">Clear Output</button>
+            </div>
+            <div id="progressContainer" class="progress" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="output-content" id="output">
+                <div class="execution-result info">
+                    <div class="block-header">PolyRun Web Interface</div>
+                    <div class="output-text">Ready to execute multi-language code.
+
+Supported languages will be loaded when connection is established.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        class PolyRunUI {
+            constructor() {
+                this.wsConnection = null;
+                this.isConnected = false;
+                this.isExecuting = false;
+                this.supportedLanguages = [];
+                
+                this.initializeElements();
+                this.setupEventListeners();
+                this.connectWebSocket();
+                this.loadSystemStatus();
+            }
+
+            initializeElements() {
+                this.runBtn = document.getElementById('runBtn');
+                this.clearBtn = document.getElementById('clearBtn');
+                this.clearOutputBtn = document.getElementById('clearOutputBtn');
+                this.editor = document.getElementById('editor');
+                this.output = document.getElementById('output');
+                this.status = document.getElementById('status');
+                this.progressContainer = document.getElementById('progressContainer');
+                this.progressBar = document.getElementById('progressBar');
+                this.consolidateCheckbox = document.getElementById('consolidateCheckbox');
+                this.exampleSelect = document.getElementById('exampleSelect');
+            }
+
+            setupEventListeners() {
+                this.runBtn.addEventListener('click', () => this.executeCode());
+                this.clearBtn.addEventListener('click', () => this.clearEditor());
+                this.clearOutputBtn.addEventListener('click', () => this.clearOutput());
+                this.exampleSelect.addEventListener('change', (e) => this.loadExample(e.target.value));
+                
+                // Split pane resizing
+                this.setupSplitPane();
+            }
+
+            setupSplitPane() {
+                const splitHandle = document.getElementById('splitHandle');
+                const editorPanel = document.querySelector('.editor-panel');
+                const outputPanel = document.querySelector('.output-panel');
+                
+                let isResizing = false;
+                
+                splitHandle.addEventListener('mousedown', (e) => {
+                    isResizing = true;
+                    document.addEventListener('mousemove', resize);
+                    document.addEventListener('mouseup', stopResize);
+                });
+                
+                function resize(e) {
+                    if (!isResizing) return;
+                    
+                    const containerWidth = document.querySelector('.main-content').offsetWidth;
+                    const newEditorWidth = (e.clientX / containerWidth) * 100;
+                    
+                    if (newEditorWidth > 20 && newEditorWidth < 80) {
+                        editorPanel.style.flex = `0 0 ${newEditorWidth}%`;
+                        outputPanel.style.width = `${100 - newEditorWidth}%`;
+                    }
+                }
+                
+                function stopResize() {
+                    isResizing = false;
+                    document.removeEventListener('mousemove', resize);
+                    document.removeEventListener('mouseup', stopResize);
+                }
+            }
+
+            async loadSystemStatus() {
+                try {
+                    const response = await fetch('/api/status');
+                    const status = await response.json();
+                    
+                    this.updateStatus('online', `🟢 Online | ${status.languages_supported.length} languages`);
+                    this.supportedLanguages = status.languages_supported;
+                    
+                    // Show supported languages
+                    this.addOutput('info', 'System Status', 
+                        `Connected to PolyRun API
+Supported languages: ${status.languages_supported.join(', ')}
+Docker: ${status.docker_available ? '✅ Available' : '❌ Not available'}
+Security: ${status.security_enabled ? '🔒 Enabled' : '⚠️ Disabled'}`);
+                    
+                } catch (error) {
+                    this.updateStatus('offline', '🔴 API Error');
+                    this.addOutput('error', 'Connection Error', 'Failed to connect to PolyRun API');
+                }
+            }
+
+            connectWebSocket() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/api/ws/execute`;
+                
+                this.wsConnection = new WebSocket(wsUrl);
+                
+                this.wsConnection.onopen = () => {
+                    this.isConnected = true;
+                    this.runBtn.disabled = false;
+                };
+                
+                this.wsConnection.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    this.handleWebSocketMessage(data);
+                };
+                
+                this.wsConnection.onclose = () => {
+                    this.isConnected = false;
+                    this.runBtn.disabled = true;
+                    this.updateStatus('offline', '🔴 Disconnected');
+                };
+                
+                this.wsConnection.onerror = (error) => {
+                    this.addOutput('error', 'WebSocket Error', 'Real-time execution not available. Using fallback API.');
+                };
+            }
+
+            handleWebSocketMessage(data) {
+                switch (data.type) {
+                    case 'start':
+                        this.startExecution();
+                        break;
+                    case 'consolidation':
+                        this.addOutput('info', 'Consolidation', data.message);
+                        break;
+                    case 'block_start':
+                        this.addOutput('info', `Block ${data.block}`, `Executing ${data.language} code...`);
+                        this.updateProgress((data.block - 1) * 30);
+                        break;
+                    case 'block_result':
+                        this.addBlockResult(data);
+                        this.updateProgress(data.block * 80);
+                        break;
+                    case 'complete':
+                        this.completeExecution();
+                        break;
+                    case 'error':
+                        this.addOutput('error', 'Execution Error', data.message);
+                        this.completeExecution();
+                        break;
+                }
+            }
+
+            async executeCode() {
+                if (this.isExecuting) return;
+                
+                const code = this.editor.value.trim();
+                if (!code) {
+                    this.addOutput('error', 'No Code', 'Please enter some code to execute.');
+                    return;
+                }
+
+                if (this.isConnected && this.wsConnection.readyState === WebSocket.OPEN) {
+                    // Use WebSocket for real-time execution
+                    this.wsConnection.send(JSON.stringify({
+                        code: code,
+                        consolidate: this.consolidateCheckbox.checked
+                    }));
+                } else {
+                    // Fallback to HTTP API
+                    await this.executeCodeHTTP(code);
+                }
+            }
+
+            async executeCodeHTTP(code) {
+                this.startExecution();
+                
+                try {
+                    const response = await fetch('/api/execute', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            code: code,
+                            consolidate: this.consolidateCheckbox.checked
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.addOutput('success', 'Execution Complete', 
+                            `Executed ${result.blocks_executed} blocks in ${result.execution_time.toFixed(3)}s
+Memory used: ${(result.memory_used / 1024).toFixed(1)}KB
+${result.blocks_consolidated > 0 ? `Consolidated ${result.blocks_consolidated} blocks` : ''}
+
+Output:
+${result.output}`);
+                    } else {
+                        this.addOutput('error', 'Execution Failed', result.error);
+                    }
+                    
+                } catch (error) {
+                    this.addOutput('error', 'Request Failed', error.message);
+                } finally {
+                    this.completeExecution();
+                }
+            }
+
+            startExecution() {
+                this.isExecuting = true;
+                this.runBtn.disabled = true;
+                this.runBtn.textContent = '⏳ Executing...';
+                this.showProgress();
+                this.addOutput('info', 'Execution Started', 'Processing code blocks...');
+            }
+
+            completeExecution() {
+                this.isExecuting = false;
+                this.runBtn.disabled = false;
+                this.runBtn.textContent = '▶️ Run Code';
+                this.hideProgress();
+            }
+
+            addBlockResult(data) {
+                const type = data.success ? 'success' : 'error';
+                const title = `Block ${data.block} [${data.language}]`;
+                const content = data.success ? 
+                    `Execution time: ${data.execution_time.toFixed(3)}s\n\n${data.output}` :
+                    `Error: ${data.error}`;
+                
+                this.addOutput(type, title, content);
+            }
+
+            addOutput(type, title, content) {
+                const resultDiv = document.createElement('div');
+                resultDiv.className = `execution-result ${type}`;
+                
+                resultDiv.innerHTML = `
+                    <div class="block-header">${title}</div>
+                    <div class="output-text">${content}</div>
+                `;
+                
+                this.output.appendChild(resultDiv);
+                this.output.scrollTop = this.output.scrollHeight;
+            }
+
+            updateStatus(type, message) {
+                this.status.className = `status ${type}`;
+                this.status.textContent = message;
+            }
+
+            showProgress() {
+                this.progressContainer.style.display = 'block';
+                this.updateProgress(0);
+            }
+
+            hideProgress() {
+                this.progressContainer.style.display = 'none';
+            }
+
+            updateProgress(percent) {
+                this.progressBar.style.width = `${Math.min(percent, 100)}%`;
+            }
+
+            clearEditor() {
+                this.editor.value = '';
+                this.editor.focus();
+            }
+
+            clearOutput() {
+                this.output.innerHTML = '';
+            }
+
+            loadExample(example) {
+                if (!example) return;
+                
+                const examples = {
+                    hello: `#lang: python
+print("Hello from Python!")
+
+#lang: javascript
+console.log("Hello from JavaScript!");
+
+#lang: cpp
+#include <iostream>
+int main() {
+    std::cout << "Hello from C++!" << std::endl;
+    return 0;
+}`,
+                    
+                    'data-passing': `#lang: python
+#export: message, numbers
+message = "Hello from Python!"
+numbers = [1, 2, 3, 4, 5]
+print(f"Python: {message}")
+print(f"Python: Numbers: {numbers}")
+
+#lang: javascript
+#import: message, numbers
+console.log("JavaScript received:", message);
+console.log("JavaScript received numbers:", numbers);
+let sum = numbers.reduce((a, b) => a + b, 0);
+console.log("JavaScript: Sum =", sum);`,
+                    
+                    mixed: `#lang: python
+import random
+numbers = [random.randint(1, 100) for _ in range(5)]
+print("Python generated:", numbers)
+
+#lang: bash
+echo "Bash: Current directory:"
+pwd
+echo "Bash: Files:"
+ls -la
+
+#lang: javascript
+const data = [1, 2, 3, 4, 5];
+const doubled = data.map(x => x * 2);
+console.log("JavaScript doubled:", doubled);`,
+                    
+                    'cpp-headers': `#lang: cpp
+#include <iostream>
+#include <vector>
+int main() {
+    std::vector<int> nums = {1, 2, 3};
+    std::cout << "First block: ";
+    for (int n : nums) std::cout << n << " ";
+    std::cout << std::endl;
+    return 0;
+}
+
+#lang: cpp
+#include <iostream>
+#include <map>
+#include <string>
+int main() {
+    std::map<std::string, int> data = {{"a", 1}, {"b", 2}};
+    std::cout << "Second block with map" << std::endl;
+    return 0;
+}`
+                };
+                
+                if (examples[example]) {
+                    this.editor.value = examples[example];
+                    this.exampleSelect.value = '';
+                }
+            }
+        }
+
+        // Initialize the application
+        window.addEventListener('DOMContentLoaded', () => {
+            new PolyRunUI();
+        });
+    </script>
+</body>
+</html>

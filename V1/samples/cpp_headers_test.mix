@@ -1,0 +1,44 @@
+#lang: cpp
+#include <iostream>
+#include <vector>
+#include <string>
+
+int main() {
+    std::cout << "First block with headers" << std::endl;
+    std::vector<int> nums = {1, 2, 3};
+    for (int n : nums) {
+        std::cout << n << " ";
+    }
+    std::cout << std::endl;
+    return 0;
+}
+
+#lang: cpp
+#include <iostream>
+#include <vector>
+#include <map>
+
+int main() {
+    std::cout << "Second block with overlapping headers" << std::endl;
+    std::map<std::string, int> data = {{"hello", 1}, {"world", 2}};
+    for (auto& [key, val] : data) {
+        std::cout << key << ": " << val << std::endl;
+    }
+    return 0;
+}
+
+#lang: cpp
+#include <iostream>
+#include <algorithm>
+
+int main() {
+    std::cout << "Third block with new headers" << std::endl;
+    std::vector<int> numbers = {5, 2, 8, 1, 9};
+    std::sort(numbers.begin(), numbers.end());
+    std::cout << "Sorted: ";
+    for (int n : numbers) {
+        std::cout << n << " ";
+    }
+    std::cout << std::endl;
+    return 0;
+}

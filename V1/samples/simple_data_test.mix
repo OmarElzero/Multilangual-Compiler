@@ -1,0 +1,10 @@
+#lang: python
+#export: greeting, number
+greeting = "Hello"
+number = 42
+print(f"Python: {greeting}, number is {number}")
+
+#lang: javascript
+#import: greeting, number
+console.log("JavaScript received:", greeting, number);
+console.log("JavaScript: Processing complete!")

@@ -1,0 +1,57 @@
+#lang: python
+#export: message, numbers, calculation_result
+
+# Generate some data in Python
+message = "Hello from Python!"
+numbers = [1, 2, 3, 4, 5]
+calculation_result = sum(numbers) * 2
+
+print(f"Python: {message}")
+print(f"Python: Generated numbers: {numbers}")
+print(f"Python: Sum * 2 = {calculation_result}")
+
+#lang: javascript
+#import: message, calculation_result
+#export: js_message, doubled_result
+
+// Use data from Python block
+console.log("JavaScript: Received message:", message);
+console.log("JavaScript: Received calculation:", calculation_result);
+
+let js_message = "Hello from JavaScript!";
+let doubled_result = calculation_result * 2;
+
+console.log("JavaScript:", js_message);
+console.log("JavaScript: Doubled result:", doubled_result);
+
+#lang: bash
+#import: js_message, doubled_result
+#export: final_message
+
+# Use data from JavaScript block
+echo "Bash: Received JS message: $js_message"
+echo "Bash: Received doubled result: $doubled_result"
+
+final_message="All languages completed successfully!"
+echo "Bash: $final_message"
+
+#lang: python
+#import: final_message
+
+# Final Python block using data from Bash
+print(f"Python: Final message from Bash: {final_message}")
+print("Python: Multi-language execution complete!")
+
+# Show all available data types
+import sys
+print(f"Python version: {sys.version}")
+
+#lang: cpp
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "C++: Standalone block (no data sharing for now)" << std::endl;
+    std::cout << "C++: This demonstrates C++ execution capability" << std::endl;
+    return 0;
+}

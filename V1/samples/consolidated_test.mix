@@ -1,0 +1,22 @@
+#lang:cpp
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    cout << "Hello from C++ - Main block!" << endl;
+    return 0;
+}
+
+#lang:python
+print("Hello from Python!")
+result = 2 + 2
+print(f"2 + 2 = {result}")
+
+#lang:cpp
+cout << "Hello again from C++ - Fragment!" << endl;
+cout << "This should be merged with headers!" << endl;
+
+#lang:cpp
+string message = "Third C++ block!";
+cout << message << endl;

@@ -1,0 +1,13 @@
+#lang: python
+#export: message, numbers
+message = "Data from Python"
+numbers = [1, 2, 3, 4, 5]
+print(f"Python: Created {message}")
+print(f"Numbers: {numbers}")
+
+#lang: javascript
+#import: message, numbers
+console.log("JavaScript received:", message);
+console.log("Numbers:", numbers);
+let sum = numbers.reduce((a, b) => a + b, 0);
+console.log("Sum:", sum);

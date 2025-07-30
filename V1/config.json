@@ -1,8 +1,9 @@
 {
   "timeout_seconds": 10,
   "log_level": "INFO",
-  "supported_languages": ["python", "cpp"],
+  "supported_languages": ["python", "cpp", "javascript", "js", "bash", "sh", "shell"],
   "log_file": "logs/output.log",
+  "docker_enabled": true,
   "error_handling": {
     "capture_errors": true,
     "log_errors": true,

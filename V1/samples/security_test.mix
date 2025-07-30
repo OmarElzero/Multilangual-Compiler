@@ -1,0 +1,27 @@
+#lang:python
+print("Safe Python code")
+result = 2 + 2
+print(f"2 + 2 = {result}")
+
+#lang:python
+# This should be blocked by security
+import os
+os.system("echo 'This should be blocked'")
+
+#lang:cpp
+#include <iostream>
+using namespace std;
+int main() {
+    cout << "Safe C++ code" << endl;
+    return 0;
+}
+
+#lang:cpp
+// This should be blocked by security
+#include <iostream>
+#include <cstdlib>
+using namespace std;
+int main() {
+    system("echo 'This should be blocked'");
+    return 0;
+}

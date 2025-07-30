@@ -131,9 +131,7 @@ class PythonRunner(BaseRunner):
                 enhanced_code.append(f"    _export_data['{var_name}'] = None")
                 enhanced_code.append("")
             
-            enhanced_code.append("import os")
-            enhanced_code.append("_export_file = os.path.join(os.path.dirname(__file__), '__export__.json')")
-            enhanced_code.append("with open(_export_file, 'w') as _f:")
+            enhanced_code.append("with open('__export__.json', 'w') as _f:")
             enhanced_code.append("    json.dump(_export_data, _f)")
         
         return '\n'.join(enhanced_code)
@@ -186,3 +184,18 @@ def run_code(code, config):
         "memory_used": 0,  # Will implement proper tracking later
         "exit_code": result['return_code']
     }
+            }
+        except subprocess.TimeoutExpired:
+            execution_time = time.time() - start_time
+            return {
+                "success": False,
+                "output": "",
+                "error": "[Python] Execution timed out.",
+                "execution_time": execution_time,
+                "memory_used": 0,
+                "exit_code": -1
+            }
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_file.name):
+                os.remove(temp_file.name)

@@ -1,0 +1,29 @@
+@cpp
+#include <iostream>
+#include <string>
+#include <vector>
+using namespace std;
+
+int main() {
+    cout << "Hello from main block!" << endl;
+    return 0;
+}
+@end
+
+@cpp
+#include <iostream>  // This should be consolidated
+#include <algorithm> // This is new and should be added
+
+    // Fragment code that uses headers
+    string greeting = "World";
+    cout << "Hello " << greeting << "!" << endl;
+@end
+
+@cpp
+#include <vector>    // Duplicate header
+#include <map>       // New header
+
+    // Another fragment
+    vector<int> numbers = {1, 2, 3, 4, 5};
+    cout << "Vector size: " << numbers.size() << endl;
+@end
