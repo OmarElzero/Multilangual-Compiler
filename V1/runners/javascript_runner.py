@@ -28,7 +28,7 @@ class JavaScriptRunner(BaseRunner):
         Returns:
             Dict with output, error, return_code, exported_data
         """
-                # Check if Node.js is available (try multiple common paths)
+        # Check if Node.js is available (try multiple common paths)
         node_paths = [
             'nodejs',                  # Ubuntu common name (try first)
             '/usr/bin/nodejs',         # Ubuntu alternative name (try second)
