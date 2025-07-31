@@ -686,6 +686,15 @@ if __name__ == "__main__":
     import uvicorn
     import argparse
     
+    # Install Node.js at startup if not available
+    print("🚀 Starting PolyRun server...")
+    try:
+        from nodejs_installer import install_nodejs
+        install_nodejs()
+    except Exception as e:
+        print(f"⚠️ Node.js installation failed: {e}")
+        print("JavaScript functionality may be limited")
+    
     parser = argparse.ArgumentParser(description='PolyRun Web Server')
     parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
     parser.add_argument('--port', type=int, default=int(os.getenv('PORT', 8000)), help='Port to bind to')
