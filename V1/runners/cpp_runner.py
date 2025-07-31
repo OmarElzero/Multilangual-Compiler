@@ -33,6 +33,11 @@ class CppRunner(BaseRunner):
         # Prepare code with import/export handling
         enhanced_code = self._prepare_code(code, import_data, export_vars)
         
+        # Debug: Print the enhanced code to see what's being generated
+        print("=== DEBUG: Enhanced C++ Code ===")
+        print(enhanced_code)
+        print("=== END DEBUG ===")
+        
         # Create temporary files
         with tempfile.NamedTemporaryFile(mode='w', suffix=self.file_extension, delete=False) as f:
             f.write(enhanced_code)
@@ -120,6 +125,8 @@ class CppRunner(BaseRunner):
         if import_data:
             enhanced_code.append("// Imported data from previous blocks")
             for var_name, value in import_data.items():
+                print(f"DEBUG: Processing {var_name} = {value} (type: {type(value)})")
+                
                 if isinstance(value, str):
                     # Escape quotes in strings
                     escaped_value = value.replace('"', '\\"')
@@ -131,29 +138,38 @@ class CppRunner(BaseRunner):
                 elif isinstance(value, bool):
                     enhanced_code.append(f'const bool {var_name} = {str(value).lower()};')
                 elif isinstance(value, list):
+                    print(f"DEBUG: Processing list {var_name} with values: {value}")
                     # Handle different types of lists
                     if not value:  # Empty list
                         enhanced_code.append(f'const std::vector<int> {var_name} = {{}};')
-                    elif all(isinstance(x, int) for x in value):
-                        # Integer vector
-                        values_str = ', '.join(map(str, value))
-                        enhanced_code.append(f'const std::vector<int> {var_name} = {{{values_str}}};')
-                    elif all(isinstance(x, (int, float)) for x in value):
-                        # Mixed numbers - use double vector
-                        values_str = ', '.join(map(str, value))
-                        enhanced_code.append(f'const std::vector<double> {var_name} = {{{values_str}}};')
-                    elif all(isinstance(x, str) for x in value):
-                        # String vector
-                        values_str = ', '.join(f'"{item.replace(chr(34), chr(92)+chr(34))}"' for item in value)
-                        enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
                     else:
-                        # Mixed types - convert all to strings
-                        values_str = ', '.join(f'"{str(item).replace(chr(34), chr(92)+chr(34))}"' for item in value)
-                        enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
+                        # Check what types we have in the list
+                        first_item = value[0]
+                        if all(isinstance(x, int) for x in value):
+                            # Integer vector
+                            values_str = ', '.join(map(str, value))
+                            enhanced_code.append(f'const std::vector<int> {var_name} = {{{values_str}}};')
+                            print(f"DEBUG: Created int vector: const std::vector<int> {var_name} = {{{values_str}}};")
+                        elif all(isinstance(x, (int, float)) for x in value):
+                            # Mixed numbers - use double vector
+                            values_str = ', '.join(map(str, value))
+                            enhanced_code.append(f'const std::vector<double> {var_name} = {{{values_str}}};')
+                            print(f"DEBUG: Created double vector: const std::vector<double> {var_name} = {{{values_str}}};")
+                        elif all(isinstance(x, str) for x in value):
+                            # String vector
+                            values_str = ', '.join(f'"{item.replace(chr(34), chr(92)+chr(34))}"' for item in value)
+                            enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
+                            print(f"DEBUG: Created string vector: const std::vector<std::string> {var_name} = {{{values_str}}};")
+                        else:
+                            # Mixed types - convert all to strings
+                            values_str = ', '.join(f'"{str(item).replace(chr(34), chr(92)+chr(34))}"' for item in value)
+                            enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
+                            print(f"DEBUG: Created mixed string vector: const std::vector<std::string> {var_name} = {{{values_str}}};")
                 else:
                     # Try to convert to string as fallback
                     escaped_value = str(value).replace('"', '\\"')
                     enhanced_code.append(f'const std::string {var_name} = "{escaped_value}";')
+                    print(f"DEBUG: Created string fallback: const std::string {var_name} = \"{escaped_value}\";")
             enhanced_code.append("")
         
         if has_main:
