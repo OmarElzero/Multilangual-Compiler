@@ -28,10 +28,19 @@ class JavaScriptRunner(BaseRunner):
         Returns:
             Dict with output, error, return_code, exported_data
         """
-        # Check if Node.js is available
-        try:
-            subprocess.run(['node', '--version'], capture_output=True, check=True)
-        except (subprocess.CalledProcessError, FileNotFoundError):
+        # Check if Node.js is available (try multiple common paths)
+        node_paths = ['/usr/bin/node', 'node', '/usr/local/bin/node']
+        node_cmd = None
+        
+        for path in node_paths:
+            try:
+                subprocess.run([path, '--version'], capture_output=True, check=True)
+                node_cmd = path
+                break
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                continue
+        
+        if not node_cmd:
             return {
                 'output': '',
                 'error': 'Node.js not found. Please install Node.js to run JavaScript code.',
@@ -50,7 +59,7 @@ class JavaScriptRunner(BaseRunner):
         try:
             # Execute the JavaScript code
             result = subprocess.run(
-                ['node', temp_file],
+                [node_cmd, temp_file],
                 capture_output=True,
                 text=True,
                 timeout=self.timeout

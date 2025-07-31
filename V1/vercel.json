@@ -11,5 +11,16 @@
       "src": "/(.*)",
       "dest": "web/backend/modern_server.py"
     }
-  ]
+  ],
+  "functions": {
+    "web/backend/modern_server.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "build": {
+    "env": {
+      "PYTHON_VERSION": "3.9",
+      "NODE_VERSION": "18"
+    }
+  }
 }
