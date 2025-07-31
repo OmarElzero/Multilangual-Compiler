@@ -28,12 +28,12 @@ class JavaScriptRunner(BaseRunner):
         Returns:
             Dict with output, error, return_code, exported_data
         """
-        # Check if Node.js is available (try multiple common paths)
+                # Check if Node.js is available (try multiple common paths)
         node_paths = [
+            'nodejs',                  # Ubuntu common name (try first)
+            '/usr/bin/nodejs',         # Ubuntu alternative name (try second)
             'node',                    # System PATH
-            'nodejs',                  # Ubuntu common name
             '/usr/bin/node',           # Standard Ubuntu location
-            '/usr/bin/nodejs',         # Ubuntu alternative name
             '/usr/local/bin/node',     # Local install
             '/opt/node/bin/node',      # Custom install
             '/app/node_modules/.bin/node',  # NPM local
