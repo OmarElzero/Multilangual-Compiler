@@ -14,9 +14,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y nodejs \
-    && which nodejs && ln -sf $(which nodejs) /usr/bin/node || true
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get update && apt-get install -y nodejs
+RUN node --version && npm --version
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt .
