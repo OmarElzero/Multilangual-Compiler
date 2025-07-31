@@ -685,19 +685,30 @@ async def health_check():
 if __name__ == "__main__":
     import uvicorn
     import argparse
+    import threading
     
-    # Install Node.js at startup if not available
+    # Install Node.js in background to avoid startup timeout
     print("🚀 Starting PolyRun server...")
-    try:
-        from nodejs_installer import install_nodejs
-        install_nodejs()
-    except Exception as e:
-        print(f"⚠️ Node.js installation failed: {e}")
-        print("JavaScript functionality may be limited")
+    
+    def install_nodejs_background():
+        try:
+            from nodejs_installer import install_nodejs
+            print("🔧 Installing Node.js in background...")
+            result = install_nodejs()
+            if result:
+                print(f"✅ Node.js ready: {result}")
+            else:
+                print("⚠️ Node.js installation failed - JavaScript functionality limited")
+        except Exception as e:
+            print(f"⚠️ Node.js installation error: {e}")
+    
+    # Start Node.js installation in background
+    threading.Thread(target=install_nodejs_background, daemon=True).start()
     
     parser = argparse.ArgumentParser(description='PolyRun Web Server')
     parser.add_argument('--host', default='0.0.0.0', help='Host to bind to')
     parser.add_argument('--port', type=int, default=int(os.getenv('PORT', 8000)), help='Port to bind to')
     args = parser.parse_args()
     
+    print(f"🌐 Server starting on {args.host}:{args.port}")
     uvicorn.run(app, host=args.host, port=args.port)
