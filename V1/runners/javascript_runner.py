@@ -42,9 +42,8 @@ class JavaScriptRunner(BaseRunner):
         node_cmd = None
         tried_paths = []
         
-        # Try to install Node.js first
+        # Try to install Node.js first (silently)
         try:
-            print("🔧 Attempting to install Node.js...")
             # Try quick installation methods
             install_commands = [
                 ['apt-get', 'update'],
@@ -54,7 +53,6 @@ class JavaScriptRunner(BaseRunner):
             for cmd in install_commands:
                 try:
                     subprocess.run(cmd, check=True, capture_output=True, timeout=30)
-                    print(f"✅ Executed: {' '.join(cmd)}")
                 except:
                     pass
             
@@ -65,13 +63,13 @@ class JavaScriptRunner(BaseRunner):
                 pass
                 
         except Exception as e:
-            print(f"⚠️ Installation attempt failed: {e}")
+            pass  # Silent failure
         
         for path in node_paths:
             try:
                 result = subprocess.run([path, '--version'], capture_output=True, check=True, text=True)
                 node_cmd = path
-                print(f"Found Node.js at {path}: {result.stdout.strip()}")
+                # Only print version info in debug mode, not for every execution
                 break
             except (subprocess.CalledProcessError, FileNotFoundError) as e:
                 tried_paths.append(f"{path}: {str(e)}")
@@ -95,8 +93,8 @@ class JavaScriptRunner(BaseRunner):
                 except (subprocess.CalledProcessError, FileNotFoundError):
                     pass
         
-        # If still not found, try some diagnostics
-        if not node_cmd:
+        # If still not found, try some diagnostics (only if debugging)
+        if not node_cmd and False:  # Disabled diagnostic output
             try:
                 # Check what's actually in /usr/bin/
                 ls_result = subprocess.run(['ls', '/usr/bin/'], capture_output=True, text=True)
