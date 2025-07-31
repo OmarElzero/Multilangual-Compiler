@@ -1,0 +1,36 @@
+#lang: python
+#export: message, numbers
+print("🐍 Python Block 1:")
+message = "Hello from Python!"
+numbers = [1, 2, 3, 4, 5]
+print(f"Created: {message}")
+print(f"Numbers: {numbers}")
+
+#lang: javascript
+#import: message, numbers
+#export: jsResult, sum
+console.log("🚀 JavaScript Block:");
+console.log("Received:", message);
+console.log("Numbers:", numbers);
+let sum = numbers.reduce((a, b) => a + b, 0);
+let jsResult = "Processed by JS";
+console.log("Sum:", sum);
+
+#lang: python
+#import: jsResult, sum
+#export: pythonTotal
+print("🐍 Python Block 2:")
+print(f"From JS: {jsResult}")
+print(f"Sum: {sum}")
+pythonTotal = sum * 2
+print(f"Doubled: {pythonTotal}")
+
+#lang: cpp
+#import: pythonTotal, jsResult
+int main() {
+    std::cout << "⚡ C++ Block:" << std::endl;
+    std::cout << "JS Result: " << jsResult << std::endl;
+    std::cout << "Python Total: " << pythonTotal << std::endl;
+    std::cout << "✅ C++ processed successfully!" << std::endl;
+    return 0;
+}

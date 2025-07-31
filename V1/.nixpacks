@@ -1,0 +1,2 @@
+# Force Railway to use Dockerfile instead of Nixpacks
+# This file exists to override Nixpacks auto-detection

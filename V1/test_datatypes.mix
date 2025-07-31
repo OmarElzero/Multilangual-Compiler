@@ -1,0 +1,65 @@
+#lang: python
+#export: message, numbers, single_num, decimal_num, flag, string_list, mixed_data
+
+# Test all data types for import/export
+message = "Hello from Python"
+numbers = [1, 2, 3, 4, 5]
+single_num = 42
+decimal_num = 3.14159
+flag = True
+string_list = ["apple", "banana", "cherry"]
+mixed_data = "test_value"
+
+print(f"Python exports:")
+print(f"  message: {message}")
+print(f"  numbers: {numbers}")
+print(f"  single_num: {single_num}")
+print(f"  decimal_num: {decimal_num}")
+print(f"  flag: {flag}")
+print(f"  string_list: {string_list}")
+print(f"  mixed_data: {mixed_data}")
+
+#lang: javascript
+#import: message, numbers, single_num, decimal_num, flag, string_list, mixed_data
+
+console.log("JavaScript received:");
+console.log("  message:", message);
+console.log("  numbers:", numbers);
+console.log("  single_num:", single_num);
+console.log("  decimal_num:", decimal_num);
+console.log("  flag:", flag);
+console.log("  string_list:", string_list);
+console.log("  mixed_data:", mixed_data);
+
+// Test calculations
+let sum = numbers.reduce((a, b) => a + b, 0);
+console.log("  Calculated sum:", sum);
+
+#lang: cpp
+#import: message, numbers, single_num, decimal_num, flag, mixed_data
+#include <iostream>
+#include <vector>
+#include <numeric>
+
+int main() {
+    std::cout << "C++ received:" << std::endl;
+    std::cout << "  message: " << message << std::endl;
+    
+    std::cout << "  numbers: [";
+    for(size_t i = 0; i < numbers.size(); i++) {
+        std::cout << numbers[i];
+        if(i < numbers.size() - 1) std::cout << ", ";
+    }
+    std::cout << "]" << std::endl;
+    
+    std::cout << "  single_num: " << single_num << std::endl;
+    std::cout << "  decimal_num: " << decimal_num << std::endl;
+    std::cout << "  flag: " << (flag ? "true" : "false") << std::endl;
+    std::cout << "  mixed_data: " << mixed_data << std::endl;
+    
+    // Test calculations
+    int sum = std::accumulate(numbers.begin(), numbers.end(), 0);
+    std::cout << "  Calculated sum: " << sum << std::endl;
+    
+    return 0;
+}

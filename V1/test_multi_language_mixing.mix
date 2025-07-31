@@ -1,0 +1,125 @@
+#lang: python
+#export: message, numbers, counter, temperature
+print("🐍 Python Block 1:")
+message = "Hello from Python!"
+numbers = [1, 2, 3, 4, 5]
+counter = 42
+temperature = 98.6
+print(f"Created message: {message}")
+print(f"Created numbers: {numbers}")
+print(f"Counter: {counter}, Temperature: {temperature}")
+
+#lang: javascript
+#import: message, numbers, counter, temperature
+#export: jsMessage, sum, doubledNumbers
+console.log("🚀 JavaScript Block 1:");
+console.log("Received message:", message);
+console.log("Received numbers:", numbers);
+console.log("Counter:", counter, "Temperature:", temperature);
+
+let sum = numbers.reduce((a, b) => a + b, 0);
+let doubledNumbers = numbers.map(x => x * 2);
+let jsMessage = "Processed by JavaScript";
+
+console.log("Sum:", sum);
+console.log("Doubled numbers:", doubledNumbers);
+
+#lang: python
+#import: jsMessage, sum, doubledNumbers, message
+#export: pythonResult, newNumbers, status
+print("🐍 Python Block 2:")
+print(f"Received from JS: {jsMessage}")
+print(f"Sum from JS: {sum}")
+print(f"Doubled numbers: {doubledNumbers}")
+print(f"Original message: {message}")
+
+pythonResult = f"Python processed sum: {sum * 2}"
+newNumbers = [x + 10 for x in doubledNumbers]
+status = "active"
+print(f"Python result: {pythonResult}")
+print(f"New numbers: {newNumbers}")
+
+#lang: cpp
+#import: pythonResult, newNumbers, sum, status
+#export: cppTotal, message
+#include <iostream>
+#include <vector>
+#include <numeric>
+
+int main() {
+    std::cout << "⚡ C++ Block 1:" << std::endl;
+    std::cout << "Received result: " << pythonResult << std::endl;
+    std::cout << "Status: " << status << std::endl;
+    std::cout << "Sum from JS: " << sum << std::endl;
+    
+    // Calculate total from newNumbers vector
+    int cppTotal = 0;
+    for(int num : newNumbers) {
+        cppTotal += num;
+    }
+    
+    std::string message = "Processed by C++";
+    
+    std::cout << "Numbers from Python: ";
+    for(int num : newNumbers) {
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "C++ Total: " << cppTotal << std::endl;
+    
+    return 0;
+}
+
+#lang: javascript
+#import: cppTotal, message, pythonResult, status
+#export: finalMessage, allData
+console.log("🚀 JavaScript Block 2:");
+console.log("C++ Total:", cppTotal);
+console.log("Message from C++:", message);
+console.log("Python result:", pythonResult);
+console.log("Status:", status);
+
+let finalMessage = `Final result: ${cppTotal} processed through all languages`;
+let allData = {
+    total: cppTotal,
+    status: status,
+    processed_by: ["Python", "JavaScript", "C++"]
+};
+
+console.log("Final message:", finalMessage);
+console.log("All data:", JSON.stringify(allData));
+
+#lang: python
+#import: finalMessage, allData, cppTotal
+#export: summary
+print("🐍 Python Block 3 (Final):")
+print(f"Final message: {finalMessage}")
+print(f"All data: {allData}")
+print(f"C++ total: {cppTotal}")
+
+summary = {
+    "languages_used": ["Python", "JavaScript", "C++"],
+    "total_blocks": 6,
+    "final_result": cppTotal,
+    "message": finalMessage,
+    "success": True
+}
+
+print("🎉 Summary:", summary)
+print("✅ Multi-language mixing test completed!")
+
+#lang: cpp
+#import: summary, finalMessage
+#include <iostream>
+#include <string>
+
+int main() {
+    std::cout << "⚡ C++ Block 2 (Final verification):" << std::endl;
+    std::cout << "Final message: " << finalMessage << std::endl;
+    std::cout << "Summary received from Python" << std::endl;
+    
+    std::cout << "🎯 All languages successfully communicated!" << std::endl;
+    std::cout << "✅ Test completed successfully!" << std::endl;
+    
+    return 0;
+}

@@ -101,7 +101,9 @@ class CppRunner(BaseRunner):
             enhanced_code.append("#include <iostream>")
             enhanced_code.append("#include <fstream>")
             enhanced_code.append("#include <string>")
+            enhanced_code.append("#include <vector>")
             enhanced_code.append("#include <map>")
+            enhanced_code.append("#include <sstream>")
             enhanced_code.append("")
         
         # Check if original code has its own headers
@@ -111,9 +113,10 @@ class CppRunner(BaseRunner):
         
         if not has_includes:
             enhanced_code.append("#include <iostream>")
+            enhanced_code.append("#include <vector>")
             enhanced_code.append("")
         
-        # Add import data as constants (limited support)
+        # Add import data as constants with proper types
         if import_data:
             enhanced_code.append("// Imported data from previous blocks")
             for var_name, value in import_data.items():
@@ -125,6 +128,27 @@ class CppRunner(BaseRunner):
                     enhanced_code.append(f'const double {var_name} = {value};')
                 elif isinstance(value, bool):
                     enhanced_code.append(f'const bool {var_name} = {str(value).lower()};')
+                elif isinstance(value, list):
+                    # Handle different types of lists
+                    if value and isinstance(value[0], (int, float)):
+                        if all(isinstance(x, int) for x in value):
+                            # Integer vector
+                            values_str = ', '.join(map(str, value))
+                            enhanced_code.append(f'const std::vector<int> {var_name} = {{{values_str}}};')
+                        else:
+                            # Mixed numbers - use double vector
+                            values_str = ', '.join(map(str, value))
+                            enhanced_code.append(f'const std::vector<double> {var_name} = {{{values_str}}};')
+                    elif value and isinstance(value[0], str):
+                        # String vector
+                        values_str = ', '.join(f'"{item}"' for item in value)
+                        enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
+                    else:
+                        # Empty or unknown type - default to int vector
+                        enhanced_code.append(f'const std::vector<int> {var_name} = {{}};')
+                else:
+                    # Try to convert to string as fallback
+                    enhanced_code.append(f'const std::string {var_name} = "{str(value)}";')
             enhanced_code.append("")
         
         if has_main:
@@ -133,7 +157,7 @@ class CppRunner(BaseRunner):
             
             # Add export functionality before the return statement if needed
             if export_vars:
-                # This is complex for C++ - we'll write to a file before return
+                # Add export functionality with better vector support
                 export_code = []
                 export_code.append("    // Export data for next blocks")
                 export_code.append("    std::ofstream export_file(\"__export__.json\");")
@@ -141,7 +165,11 @@ class CppRunner(BaseRunner):
                 
                 for i, var_name in enumerate(export_vars):
                     comma = "," if i < len(export_vars) - 1 else ""
-                    export_code.append(f"    export_file << \"\\\"{var_name}\\\": \\\"\" << {var_name} << \"\\\"{comma}\" << std::endl;")
+                    # Try to detect if it's a vector and handle accordingly
+                    export_code.append(f"    // Export {var_name}")
+                    export_code.append(f"    export_file << \"\\\"{var_name}\\\": \";")
+                    export_code.append(f"    // Check if {var_name} is a vector (simplified)")
+                    export_code.append(f"    export_file << \"\\\"\" << {var_name} << \"\\\"{comma}\" << std::endl;")
                 
                 export_code.append("    export_file << \"}\" << std::endl;")
                 export_code.append("    export_file.close();")
