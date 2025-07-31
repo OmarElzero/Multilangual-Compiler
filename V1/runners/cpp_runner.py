@@ -121,7 +121,9 @@ class CppRunner(BaseRunner):
             enhanced_code.append("// Imported data from previous blocks")
             for var_name, value in import_data.items():
                 if isinstance(value, str):
-                    enhanced_code.append(f'const std::string {var_name} = "{value}";')
+                    # Escape quotes in strings
+                    escaped_value = value.replace('"', '\\"')
+                    enhanced_code.append(f'const std::string {var_name} = "{escaped_value}";')
                 elif isinstance(value, int):
                     enhanced_code.append(f'const int {var_name} = {value};')
                 elif isinstance(value, float):
@@ -130,25 +132,28 @@ class CppRunner(BaseRunner):
                     enhanced_code.append(f'const bool {var_name} = {str(value).lower()};')
                 elif isinstance(value, list):
                     # Handle different types of lists
-                    if value and isinstance(value[0], (int, float)):
-                        if all(isinstance(x, int) for x in value):
-                            # Integer vector
-                            values_str = ', '.join(map(str, value))
-                            enhanced_code.append(f'const std::vector<int> {var_name} = {{{values_str}}};')
-                        else:
-                            # Mixed numbers - use double vector
-                            values_str = ', '.join(map(str, value))
-                            enhanced_code.append(f'const std::vector<double> {var_name} = {{{values_str}}};')
-                    elif value and isinstance(value[0], str):
+                    if not value:  # Empty list
+                        enhanced_code.append(f'const std::vector<int> {var_name} = {{}};')
+                    elif all(isinstance(x, int) for x in value):
+                        # Integer vector
+                        values_str = ', '.join(map(str, value))
+                        enhanced_code.append(f'const std::vector<int> {var_name} = {{{values_str}}};')
+                    elif all(isinstance(x, (int, float)) for x in value):
+                        # Mixed numbers - use double vector
+                        values_str = ', '.join(map(str, value))
+                        enhanced_code.append(f'const std::vector<double> {var_name} = {{{values_str}}};')
+                    elif all(isinstance(x, str) for x in value):
                         # String vector
-                        values_str = ', '.join(f'"{item}"' for item in value)
+                        values_str = ', '.join(f'"{item.replace(chr(34), chr(92)+chr(34))}"' for item in value)
                         enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
                     else:
-                        # Empty or unknown type - default to int vector
-                        enhanced_code.append(f'const std::vector<int> {var_name} = {{}};')
+                        # Mixed types - convert all to strings
+                        values_str = ', '.join(f'"{str(item).replace(chr(34), chr(92)+chr(34))}"' for item in value)
+                        enhanced_code.append(f'const std::vector<std::string> {var_name} = {{{values_str}}};')
                 else:
                     # Try to convert to string as fallback
-                    enhanced_code.append(f'const std::string {var_name} = "{str(value)}";')
+                    escaped_value = str(value).replace('"', '\\"')
+                    enhanced_code.append(f'const std::string {var_name} = "{escaped_value}";')
             enhanced_code.append("")
         
         if has_main:
@@ -193,6 +198,7 @@ class CppRunner(BaseRunner):
                 
                 for i, var_name in enumerate(export_vars):
                     comma = "," if i < len(export_vars) - 1 else ""
+                    # Add a simple export that works for basic types
                     enhanced_code.append(f"    export_file << \"\\\"{var_name}\\\": \\\"\" << {var_name} << \"\\\"{comma}\" << std::endl;")
                 
                 enhanced_code.append("    export_file << \"}\" << std::endl;")

@@ -1,0 +1,23 @@
+#lang: python
+#export: numbers
+numbers = [12, 14, 16, 18, 20]
+print("Python exported numbers:", numbers)
+
+#lang: cpp
+#import: numbers
+#include <iostream>
+#include <vector>
+
+int main() {
+    std::cout << "C++ received numbers. Processing..." << std::endl;
+    
+    int total = 0;
+    for(int num : numbers) {
+        total += num;
+        std::cout << num << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "Total: " << total << std::endl;
+    
+    return 0;
+}
