@@ -29,21 +29,48 @@ class JavaScriptRunner(BaseRunner):
             Dict with output, error, return_code, exported_data
         """
         # Check if Node.js is available (try multiple common paths)
-        node_paths = ['/usr/bin/node', 'node', '/usr/local/bin/node']
+        node_paths = [
+            'node',                    # System PATH
+            '/usr/bin/node',           # Standard Ubuntu location
+            '/usr/local/bin/node',     # Local install
+            '/opt/node/bin/node',      # Custom install
+            '/app/node_modules/.bin/node',  # NPM local
+            '/usr/bin/nodejs',         # Ubuntu alternative name
+            '/bin/node',               # Basic system location
+        ]
         node_cmd = None
+        tried_paths = []
         
         for path in node_paths:
             try:
-                subprocess.run([path, '--version'], capture_output=True, check=True)
+                result = subprocess.run([path, '--version'], capture_output=True, check=True, text=True)
                 node_cmd = path
+                print(f"Found Node.js at {path}: {result.stdout.strip()}")
                 break
-            except (subprocess.CalledProcessError, FileNotFoundError):
+            except (subprocess.CalledProcessError, FileNotFoundError) as e:
+                tried_paths.append(f"{path}: {str(e)}")
                 continue
         
+        # If not found, try to find it using 'which' command
         if not node_cmd:
+            try:
+                which_result = subprocess.run(['which', 'node'], capture_output=True, check=True, text=True)
+                potential_path = which_result.stdout.strip()
+                if potential_path:
+                    try:
+                        subprocess.run([potential_path, '--version'], capture_output=True, check=True)
+                        node_cmd = potential_path
+                        print(f"Found Node.js via 'which': {potential_path}")
+                    except (subprocess.CalledProcessError, FileNotFoundError):
+                        pass
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                pass
+        
+        if not node_cmd:
+            error_msg = f'Node.js not found. Tried paths: {", ".join(tried_paths)}'
             return {
                 'output': '',
-                'error': 'Node.js not found. Please install Node.js to run JavaScript code.',
+                'error': error_msg,
                 'return_code': 127,
                 'exported_data': {}
             }
