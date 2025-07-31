@@ -560,7 +560,7 @@ int main() {
 
 @app.post("/execute")
 async def execute_code(request: CodeRequest):
-    """Execute multi-language code"""
+    """Execute multi-language code with cloud platform compatibility"""
     try:
         # Import necessary modules
         import io
