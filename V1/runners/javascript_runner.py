@@ -42,6 +42,31 @@ class JavaScriptRunner(BaseRunner):
         node_cmd = None
         tried_paths = []
         
+        # Try to install Node.js first
+        try:
+            print("🔧 Attempting to install Node.js...")
+            # Try quick installation methods
+            install_commands = [
+                ['apt-get', 'update'],
+                ['apt-get', 'install', '-y', 'nodejs', 'npm']
+            ]
+            
+            for cmd in install_commands:
+                try:
+                    subprocess.run(cmd, check=True, capture_output=True, timeout=30)
+                    print(f"✅ Executed: {' '.join(cmd)}")
+                except:
+                    pass
+            
+            # Create symlink if nodejs exists but node doesn't
+            try:
+                subprocess.run(['ln', '-sf', '/usr/bin/nodejs', '/usr/bin/node'], capture_output=True)
+            except:
+                pass
+                
+        except Exception as e:
+            print(f"⚠️ Installation attempt failed: {e}")
+        
         for path in node_paths:
             try:
                 result = subprocess.run([path, '--version'], capture_output=True, check=True, text=True)
