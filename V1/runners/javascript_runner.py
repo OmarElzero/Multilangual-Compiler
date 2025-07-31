@@ -73,12 +73,18 @@ class JavaScriptRunner(BaseRunner):
         # If still not found, try some diagnostics
         if not node_cmd:
             try:
-                # Check what's in common bin directories
-                ls_result = subprocess.run(['ls', '-la', '/usr/bin/ | grep node'], 
-                                         shell=True, capture_output=True, text=True)
-                print(f"Files in /usr/bin/ containing 'node': {ls_result.stdout}")
-            except:
-                pass
+                # Check what's actually in /usr/bin/
+                ls_result = subprocess.run(['ls', '/usr/bin/'], capture_output=True, text=True)
+                node_files = [f for f in ls_result.stdout.split() if 'node' in f.lower()]
+                print(f"Node-related files in /usr/bin/: {node_files}")
+                
+                # Check if we can find anything with 'node' anywhere
+                find_result = subprocess.run(['find', '/usr', '-name', '*node*', '-type', 'f'], 
+                                           capture_output=True, text=True, timeout=5)
+                if find_result.stdout:
+                    print(f"Found Node.js related files: {find_result.stdout.strip()}")
+            except Exception as e:
+                print(f"Diagnostic error: {e}")
         
         if not node_cmd:
             error_msg = f'Node.js not found. Tried paths: {", ".join(tried_paths)}'
