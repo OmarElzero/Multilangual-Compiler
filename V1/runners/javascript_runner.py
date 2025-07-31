@@ -31,11 +31,12 @@ class JavaScriptRunner(BaseRunner):
         # Check if Node.js is available (try multiple common paths)
         node_paths = [
             'node',                    # System PATH
+            'nodejs',                  # Ubuntu common name
             '/usr/bin/node',           # Standard Ubuntu location
+            '/usr/bin/nodejs',         # Ubuntu alternative name
             '/usr/local/bin/node',     # Local install
             '/opt/node/bin/node',      # Custom install
             '/app/node_modules/.bin/node',  # NPM local
-            '/usr/bin/nodejs',         # Ubuntu alternative name
             '/bin/node',               # Basic system location
         ]
         node_cmd = None
@@ -53,17 +54,30 @@ class JavaScriptRunner(BaseRunner):
         
         # If not found, try to find it using 'which' command
         if not node_cmd:
+            # Try different which commands
+            for cmd in ['node', 'nodejs']:
+                try:
+                    which_result = subprocess.run(['which', cmd], capture_output=True, check=True, text=True)
+                    potential_path = which_result.stdout.strip()
+                    if potential_path:
+                        try:
+                            subprocess.run([potential_path, '--version'], capture_output=True, check=True)
+                            node_cmd = potential_path
+                            print(f"Found Node.js via 'which {cmd}': {potential_path}")
+                            break
+                        except (subprocess.CalledProcessError, FileNotFoundError):
+                            pass
+                except (subprocess.CalledProcessError, FileNotFoundError):
+                    pass
+        
+        # If still not found, try some diagnostics
+        if not node_cmd:
             try:
-                which_result = subprocess.run(['which', 'node'], capture_output=True, check=True, text=True)
-                potential_path = which_result.stdout.strip()
-                if potential_path:
-                    try:
-                        subprocess.run([potential_path, '--version'], capture_output=True, check=True)
-                        node_cmd = potential_path
-                        print(f"Found Node.js via 'which': {potential_path}")
-                    except (subprocess.CalledProcessError, FileNotFoundError):
-                        pass
-            except (subprocess.CalledProcessError, FileNotFoundError):
+                # Check what's in common bin directories
+                ls_result = subprocess.run(['ls', '-la', '/usr/bin/ | grep node'], 
+                                         shell=True, capture_output=True, text=True)
+                print(f"Files in /usr/bin/ containing 'node': {ls_result.stdout}")
+            except:
                 pass
         
         if not node_cmd:
